@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燕云和鸣</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2341, #2c3e50);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 卡池标题样式 */
+        .pool-title {
+            text-align: center;
+            color: #f8dcb4;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .pool-title h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+
+        .pool-title p {
+            font-size: 1.2rem;
+            color: #c9b89a;
+        }
+
+        /* 保底信息提示 */
+        .guarantee-info {
+            text-align: center;
+            color: #e0c890;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid #4a4335;
+        }
+
+        /* 抽奖操作区 */
+        .draw-ops {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .draw-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .single-draw {
+            background: linear-gradient(#f3d7a7, #e6b86e);
+            color: #6d4c2f;
+        }
+
+        .ten-draw {
+            background: linear-gradient(#ff6b6b, #e55555);
+            color: #fff;
+        }
+
+        .draw-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .draw-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 卡池结果展示区 */
+        .card-result {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        /* 卡片样式 */
+        .card {
+            width: 180px;
+            height: 260px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+            animation: cardPop 0.6s ease forwards;
+        }
+
+        @keyframes cardPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotateY(90deg);
+            }
+            70% {
+                opacity: 0.8;
+                transform: scale(1.05) rotateY(0deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        .card-bg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .card-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-rarity {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .card-name {
+            font-size: 1.3rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .card-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        /* 稀有度配色区分 */
+        .rarity-SSR {
+            background: linear-gradient(135deg, #ffd700, #ffed4b);
+            color: #8b6914;
+        }
+
+        .rarity-SR {
+            background: linear-gradient(135deg, #9370db, #b19cd9);
+            color: #4b367c;
+        }
+
+        .rarity-R {
+            background: linear-gradient(135deg, #6495ed, #87cefa);
+            color: #2d4a7b;
+        }
+
+        .card-SSR .card-bg {
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.2), rgba(255, 193, 7, 0.1));
+        }
+
+        .card-SR .card-bg {
+            background: linear-gradient(180deg, rgba(147, 112, 219, 0.2), rgba(177, 156, 217, 0.1));
+        }
+
+        .card-R .card-bg {
+            background: linear-gradient(180deg, rgba(100, 149, 237, 0.2), rgba(135, 206, 250, 0.1));
+        }
+
+        /* 概率说明区 */
+        .prob-info {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            color: #e0c890;
+        }
+
+        .prob-info h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #f8dcb4;
+        }
+
+        .prob-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .prob-table th, .prob-table td {
+            padding: 12px;
+            border: 1px solid #4a4335;
+        }
+
+        .prob-table th {
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 卡池标题 -->
+        <div class="pool-title">
+            <h1>燕云和鸣 </h1>
+        </div>
+
+        <!-- 保底信息 -->
+        <div class="guarantee-info" id="guaranteeText">
+            当前累计抽奖：0次 | 距离保底SSR剩余：150次
+        </div>
+
+        <!-- 抽奖操作按钮 -->
+        <div class="draw-ops">
+            <button class="draw-btn single-draw" id="singleDrawBtn">单抽 (1袅袅)</button>
+            <button class="draw-btn ten-draw" id="tenDrawBtn">十连抽 (10袅袅)</button>
+        </div>
+
+        <!-- 抽奖结果展示 -->
+        <div class="card-result" id="cardResult"></div>
+
+        <!-- 概率说明 -->
+        <div class="prob-info">
+            <h3>卡池概率说明</h3>
+            <table class="prob-table">
+                <thead>
+                    <tr>
+                        <th>稀有度</th>
+                        <th>基础概率</th>
+                        <th>UP概率（限时）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SSR（燕云限定）</td>
+                        <td>93%</td>
+                        <td>93%（占SSR总概率50%）</td>
+                    </tr>
+                    <tr>
+                        <td>SR</td>
+                        <td>5.1%</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>R</td>
+                        <td>94.3%</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量定义
+        const cardResultDom = document.getElementById('cardResult');
+        const guaranteeTextDom = document.getElementById('guaranteeText');
+        const singleDrawBtn = document.getElementById('singleDrawBtn');
+        const tenDrawBtn = document.getElementById('tenDrawBtn');
+
+        // 卡池配置
+        let drawCount = 0; // 累计抽奖次数
+        const guaranteeLimit = 30; // 保底次数
+        const cardPool = {
+            // SSR卡片列表
+            SSR: [
+                { name: "燕云·人鱼", desc: "限定SSR，" },
+                { name: "燕云·有狐", desc: "限定SSR，" },
+                { name: "燕云·蓬山", desc: "限定SSR，" }
+            ],
+            // SR卡片列表
+            SR: [
+                { name: "天晶", desc: "SR，" },
+                { name: "天井", desc: "SR，" },
+                { name: "天津", desc: "SR，" }
+            ],
+            // R卡片列表
+            R: [
+                { name: "烟花", desc: "R，" },
+                { name: "药", desc: "R，" },
+                { name: "菜", desc: "R，" }
+            ]
+        };
+
+        // 更新保底信息提示
+        function updateGuaranteeInfo() {
+            const remaining = guaranteeLimit - drawCount;
+            guaranteeTextDom.innerText = `当前累计抽奖：${drawCount}次 | 距离保底SSR剩余：${remaining > 0 ? remaining : 0}次`;
+        }
+
+        // 随机获取卡片稀有度（含保底逻辑）
+        function getCardRarity() {
+            // 保底逻辑：达到保底次数必出SSR
+            if (drawCount % guaranteeLimit === 0 && drawCount > 0) {
+                return "SSR";
+            }
+
+            // 生成0-100的随机数
+            const random = Math.random() * 100;
+
+            if (random <= 0.6) {
+                return "SSR";
+            } else if (random <= 0.6 + 5.1) {
+                return "SR";
+            } else {
+                return "R";
+            }
+        }
+
+        // 生成单张卡片
+        function createSingleCard() {
+            drawCount++; // 累计抽奖次数+1
+            const rarity = getCardRarity();
+            const cardList = cardPool[rarity];
+            const randomCard = cardList[Math.floor(Math.random() * cardList.length)];
+
+            // 创建卡片DOM元素
+            const card = document.createElement('div');
+            card.className = `card card-${rarity}`;
+
+            card.innerHTML = `
+                <div class="card-bg"></div>
+                <div class="card-content">
+                    <span class="card-rarity rarity-${rarity}">${rarity}</span>
+                    <div class="card-img">${rarity[0]}</div>
+                    <div class="card-name">${randomCard.name}</div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // 单抽功能
+        function singleDraw() {
+            // 清空之前的结果（可选：保留可注释此行）
+            cardResultDom.innerHTML = '';
+            // 生成单张卡片并添加到页面
+            const card = createSingleCard();
+            cardResultDom.appendChild(card);
+            // 更新保底信息
+            updateGuaranteeInfo();
+        }
+
+        // 十连抽功能
+        function tenDraw() {
+            // 清空之前的结果（可选：保留可注释此行）
+            cardResultDom.innerHTML = '';
+            // 循环生成10张卡片
+            for (let i = 0; i < 10; i++) {
+                const card = createSingleCard();
+                // 添加延迟动画，模拟十连抽依次弹出
+                card.style.animationDelay = `${i * 0.1}s`;
+                cardResultDom.appendChild(card);
+            }
+            // 更新保底信息
+            updateGuaranteeInfo();
+        }
+
+        // 绑定按钮点击事件
+        singleDrawBtn.addEventListener('click', singleDraw);
+        tenDrawBtn.addEventListener('click', tenDraw);
+
+        // 页面初始化更新保底信息
+        updateGuaranteeInfo();
+    </script>
+</body>
+</html>
